@@ -2,7 +2,7 @@ package com.alagris.src;
 
 import com.alagris.src.specific.SwarmInterface;
 
-public class IosSwarmImplementation implements SwarmInterface
+public abstract class IosSwarmImplementation implements SwarmInterface
 {
 
 	@Override
@@ -12,11 +12,6 @@ public class IosSwarmImplementation implements SwarmInterface
 
 	@Override
 	public void submitScore(int MY_LEADERBOARD_ID, float lastScore)
-	{
-	}
-
-	@Override
-	public void unlock(int MY_ACHIEVEMENT_ID)
 	{
 	}
 
@@ -53,6 +48,36 @@ public class IosSwarmImplementation implements SwarmInterface
 	public void showAchievements()
 	{
 
+	}
+
+	@Override
+	public int getUserID()
+	{
+		return 0;
+	}
+
+	@Override
+	public void uploadDataToCloud(String key, byte[] data)
+	{
+
+	}
+
+	@Override
+	public void showError(String text, boolean showForLongTime)
+	{
+
+	}
+
+	@Override
+	public void unlock(String MY_ACHIEVEMENT_ID)
+	{
+
+	}
+
+	@Override
+	public byte[] downloadDataFromCloud(String key)
+	{
+		return null;
 	}
 
 }

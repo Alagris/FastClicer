@@ -14,7 +14,8 @@ public class IOSLauncher extends IOSApplication.Delegate
 	protected IOSApplication createApplication()
 	{
 		IOSApplicationConfiguration config = new IOSApplicationConfiguration();
-		return new IOSApplication(new FastClicker(new IosSwarmImplementation(), interface1), config);
+		return new IOSApplication(
+				new FastClicker(null/* new IosSwarmImplementation() */, interface1), config);
 	}
 
 	public static void main(String[] argv)

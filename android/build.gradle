@@ -1,6 +1,6 @@
 android {
-    buildToolsVersion "22.0.1"
-    compileSdkVersion 22
+    buildToolsVersion "23.0.2"
+    compileSdkVersion 23
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -13,6 +13,11 @@ android {
         }
 
         instrumentTest.setRoot('tests')
+    }
+    buildTypes {
+        debug {
+            debuggable true
+        }
     }
 }
 

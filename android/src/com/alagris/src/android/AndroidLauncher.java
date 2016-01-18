@@ -2,13 +2,19 @@ package com.alagris.src.android;
 
 import com.alagris.src.FastClicker;
 import com.alagris.src.specific.AdMobInterface;
-import com.alagris.src.specific.SwarmInterface;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
-import com.swarmconnect.Swarm;
+import com.google.android.gms.common.ConnectionResult;
+//import com.swarmconnect.Swarm;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.drive.Drive;
+import com.google.android.gms.games.Games;
+import com.google.android.gms.plus.Plus;
 
 import android.os.Bundle;
 
@@ -42,7 +48,7 @@ public class AndroidLauncher extends AndroidApplication
 				@Override
 				public void run()
 				{
-					//TODO:Remove test device 
+					// TODO:Remove test device
 					AdRequest adRequest = new AdRequest.Builder().addTestDevice("8BFB75BE5D040A282C06D3AC6F3C58E3")
 							.build();
 					interstitialAd.loadAd(adRequest);
@@ -65,8 +71,8 @@ public class AndroidLauncher extends AndroidApplication
 				}
 			});
 		}
-
 	};
+	private GoogleApiClient googleApiClient;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -80,42 +86,83 @@ public class AndroidLauncher extends AndroidApplication
 		// ============AD VIEW==========^^^
 
 		// ============SWARM==========VVV
-		SwarmInterface swarmInterface = new AndroidSwarmImplementation();
+		AndroidSwarmImplementation swarmInterface = new AndroidSwarmImplementation(this);
 		// ============SWARM==========^^^
-
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 
 		// ============GAME VIEW==========VVV
 		initialize(new FastClicker(swarmInterface, adMobGDX), config);
 		// ============GAME VIEW==========^^^
+
+		// ============GOOGLE==========VVV
+		googleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(connectionCallbacks)
+				.addOnConnectionFailedListener(connectionFailedListener).addApi(Plus.API)
+				.addScope(Plus.SCOPE_PLUS_LOGIN).addApi(Games.API).addScope(Games.SCOPE_GAMES).addApi(Drive.API)
+				.addScope(Drive.SCOPE_APPFOLDER).build();
+		swarmInterface.setGoogleApiClient(googleApiClient);
 		adMobGDX.requestNewInterstitial();
-		// ============SWARM==========VVV
-		Swarm.setAllowGuests(true);
-		Swarm.setActive(this);
-		// ============SWARM==========^^^
+		// ============GOOGLE==========^^^
+
+		// // ============SWARM==========VVV
+		// Swarm.setAllowGuests(true);
+		// Swarm.setActive(this);
+		// // ============SWARM==========^^^
 	}
 
 	// Add everything below here too
 	public void onResume()
 	{
 		super.onResume();
-		// ============SWARM==========VVV
-		Swarm.setActive(this);
+		// // ============SWARM==========VVV
+		// Swarm.setActive(this);
+		//
+		// // Replace MY_APP_ID with your App ID from the Swarm Admin Panel
+		// // Replace MY_APP_KEY with your string App Key from the Swarm Admin
+		// // Panel
+		// Swarm.init(this, 18657, "47099aacc1cd24a267bf868accc965d2");
+		// // ============SWARM==========^^^
+	}
 
-		// Replace MY_APP_ID with your App ID from the Swarm Admin Panel
-		// Replace MY_APP_KEY with your string App Key from the Swarm Admin
-		// Panel
-		Swarm.init(this, 18657, "47099aacc1cd24a267bf868accc965d2");
-		// ============SWARM==========^^^
+	@Override
+	protected void onStart()
+	{
+		super.onStart();
+		googleApiClient.connect();
 	}
 
 	public void onPause()
 	{
 		super.onPause();
-		// ============SWARM==========VVV
-		Swarm.setInactive(this);
-		// ============SWARM==========^^^
+		// // ============SWARM==========VVV
+		// Swarm.setInactive(this);
+		// // ============SWARM==========^^^
 	}
+
+	private OnConnectionFailedListener connectionFailedListener = new OnConnectionFailedListener()
+	{
+
+		@Override
+		public void onConnectionFailed(ConnectionResult result)
+		{
+
+		}
+	};
+
+	private ConnectionCallbacks connectionCallbacks = new ConnectionCallbacks()
+	{
+
+		@Override
+		public void onConnectionSuspended(int cause)
+		{
+
+		}
+
+		@Override
+		public void onConnected(Bundle connectionHint)
+		{
+
+		}
+	};
 
 	private AdListener adListener = new AdListener()
 	{
