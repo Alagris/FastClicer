@@ -18,9 +18,9 @@ public class HowToPlayState implements State
 
 	private ButtonSquare next, back;
 	private FastClicker mainClass;
-	private int pages = 7;
+	private int pages = 8;
 	private int currentPageIndex = 0;
-	private GlyphLayout glyphPage0, glyphPage1, glyphPage2, glyphPage3, glyphPage4, glyphPage5,glyphPage6;
+	private GlyphLayout glyphPage0, glyphPage1, glyphPage2, glyphPage3, glyphPage4, glyphPage5, glyphPage6, glyphPage7;
 	private int textX, textY;
 	private CellSampler sampler;
 	private BitSet correctBitSet, incorrectBitSet, universalBitSet;
@@ -51,7 +51,9 @@ public class HowToPlayState implements State
 		String text4 = "Universal cells:\n\nMixed cells give any kind of cells and are always correct";
 		String text5 = "Important notes:\n\nPress back button and game will pause when you pass current level"
 				+ ".\n\nGold hearts let you play once again the same level when time is up. Go to shop to buy them.";
-		String text6 = "About ads:\n\nEverytime you see advertisement we get a few cents for pizza and you get 50 gold. "
+		String text6 = "Game modes:\n\nEASY - there are no mixed cells\n\nMEDIUM"
+				+ " - mixed cells appear on left side\n\nHARD - mixed cells appear on both sides\n\nThe more difficult mode the more gold you get";
+		String text7 = "About ads:\n\nEverytime you see advertisement we get a few cents for pizza and you get 50 gold. "
 				+ "Fair deal, isn't it? Of course if you really don't want to give us some pizza you could disable "
 				+ "ads... FOR FREE (go to shop). PS. you don't have to click the ad to get gold.";
 		glyphPage0 = new GlyphLayout(StaticBitmapFont.getBitmapFont(), text0,
@@ -68,6 +70,8 @@ public class HowToPlayState implements State
 				StaticBitmapFont.getBitmapFont().getColor(), textWidth, Align.left, true);
 		glyphPage6 = new GlyphLayout(StaticBitmapFont.getBitmapFont(), text6,
 				StaticBitmapFont.getBitmapFont().getColor(), textWidth, Align.left, true);
+		glyphPage7 = new GlyphLayout(StaticBitmapFont.getBitmapFont(), text7,
+				StaticBitmapFont.getBitmapFont().getColor(), textWidth, Align.left, true);
 		correctBitSet = new BitSet();
 		setBitSet(correctBitSet, true, true, true, true);
 		incorrectBitSet = new BitSet();
@@ -81,7 +85,8 @@ public class HowToPlayState implements State
 
 		timer = new TimerWithListener(0, 1)
 		{
-			int flipCount = 0;
+			int flipCountFor4 = 0;
+			boolean flipFor3 = true;
 
 			@Override
 			public void whenTimeIsUp(double time, double limit)
@@ -91,12 +96,19 @@ public class HowToPlayState implements State
 						correctBitSet.flip(0, 4);
 						break;
 					case 3:
-						incorrectBitSet.flip(0, 4);
+						if (flipFor3)
+						{
+							incorrectBitSet.flip(0, 4);
+						}
+						else
+						{
+							incorrectBitSet.flip(2);
+						}
+						flipFor3 = !flipFor3;
 						break;
 					case 4:
-						flipCount++;
 
-						switch (flipCount) {
+						switch (++flipCountFor4) {
 							case 0:
 								universalBitSet.flip(0, 4);
 								break;
@@ -114,7 +126,7 @@ public class HowToPlayState implements State
 								break;
 							case 5:
 								universalBitSet.flip(3, 4);
-								flipCount = -1;
+								flipCountFor4 = -1;
 								break;
 						}
 						break;
@@ -195,7 +207,10 @@ public class HowToPlayState implements State
 			case 6:
 				renderGlyph(glyphPage6);
 				break;
-				
+			case 7:
+				renderGlyph(glyphPage7);
+				break;
+
 		}
 	}
 

@@ -20,7 +20,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 public class ShopStateGold implements ShopStatePanelInterface
 {
 
-	private ShopState parent;
+//	private ShopState parent;
 	private Texture goldTexture;
 	private Sprite goldSprite;
 	private SpriteBatch goldBatch;
@@ -39,7 +39,7 @@ public class ShopStateGold implements ShopStatePanelInterface
 	
 	public ShopStateGold(ShopState parent)
 	{
-		this.parent = parent;
+//		this.parent = parent;
 		goldTexture = new Texture("Gold256x128.png");
 		goldSprite = new Sprite(goldTexture);
 		goldBatch = new SpriteBatch();

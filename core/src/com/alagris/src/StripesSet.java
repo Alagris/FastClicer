@@ -58,7 +58,7 @@ public class StripesSet
 		}
 		else
 		{
-			
+
 			randomRow = intersection[(int) (Math.random() * intersection.length)];
 		}
 		buildChildren();
@@ -73,7 +73,10 @@ public class StripesSet
 
 	}
 
-	/** Mode with mixed cells */
+	/**
+	 * Mode with universal cells (but on the right are only single-colored
+	 * cells)
+	 */
 	public void changeSets_mode3(double darkStripesFrequency)
 	{
 		parentSet0.generateSet(darkStripesFrequency);
@@ -88,7 +91,7 @@ public class StripesSet
 		}
 		else
 		{
-			
+
 			randomRow = intersection[(int) (Math.random() * intersection.length)];
 		}
 		buildChildren_noColorMixing();

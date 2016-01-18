@@ -52,7 +52,7 @@ public class HeartBar implements Disposable
 		sprite.setSize(sizeOfHeart, sizeOfHeart);
 	}
 
-	public void render(int heartsNumber)
+	public void render(long heartsNumber)
 	{
 
 		// if (renderInCenter)

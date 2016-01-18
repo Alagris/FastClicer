@@ -113,7 +113,7 @@ public class GameStateGaveOverPanel implements Disposable, Drawable
 				newRecordSprite.setTexture(newRecordTexture);
 			}
 		}
-		income = incomeAnimation.moneyFromScoreFunction(score);
+		income = FastClicker.moneyFromScoreFunction(score);
 		incomeAnimation.setAnimation(FastClicker.getMoney(), income);
 		FastClicker.setMoney(FastClicker.getMoney() + income);
 	}
@@ -207,7 +207,7 @@ public class GameStateGaveOverPanel implements Disposable, Drawable
 		incomeAnimation.render();
 	}
 
-	private void renderBestScoreText(int number)
+	private void renderBestScoreText(long number)
 	{
 		bestText.render();
 		renderScoreNextToText("" + number, bestText.getBitmapFontCache());

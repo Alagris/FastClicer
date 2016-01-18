@@ -20,7 +20,7 @@ public class MenuState implements State
 		}
 		if (buttonHowToPlay.checkButton())
 		{
-			mainClass.getSwarmInterface().unlock(23531);
+			mainClass.getSwarmInterface().unlock("CgkIvtaPzJQMEAIQAQ");
 			mainClass.setCurrentSate(StateOfGame.HOW_TO_PLAY);
 		}
 		if (buttonSwarm.checkButton())

@@ -19,7 +19,7 @@ public class ShopStateHearts implements ShopStatePanelInterface
 	private int glyph1X, glyph1Y, glyph2X, glyph2Y, h, price;
 	private ButtonSquare buttonRedHeart, buttonGoldHeart;
 	private boolean isGoldHeartShown = false;
-
+	
 	public ShopStateHearts(ShopState parent)
 	{
 		h = FastClicker.HEIGHT / 20;
@@ -96,9 +96,9 @@ public class ShopStateHearts implements ShopStatePanelInterface
 
 	}
 
-	///////////////////
+	//////////////////////
 	//// RED //////////
-	///////////////////
+	//////////////////////
 
 	private void resetEverything()
 	{
@@ -143,10 +143,11 @@ public class ShopStateHearts implements ShopStatePanelInterface
 		return s;
 	}
 
-	private int heartPriceFunction(int heartNumber)
+	private int heartPriceFunction(long heartNumber)
 	{
-		return (int) (100 * Math.pow(heartNumber - 1, 3));
+		return Math.min(FastClicker.redHeartPriceFunction(heartNumber), FastClicker.maxRedHeartPrice);
 	}
+
 
 	///////////////////
 	//// GOLD//////////
@@ -183,24 +184,22 @@ public class ShopStateHearts implements ShopStatePanelInterface
 	private String getTextGold()
 	{
 		String s;
-		switch (FastClicker.getGoldLifes()) {
-			case 0:
+		if (FastClicker.getGoldLifes() ==0) {
 				s = "You have no gold lifes\n    First one costs:";
-				break;
-			case 1:
+		}else if(FastClicker.getGoldLifes() ==1){
 				s = "You have one gold life\nnow. Price of next is:";
-				break;
-			default:
+		}else{
 				s = "You have " + FastClicker.getGoldLifes() + " gold lifes\nnow. Price of next is:";
-				break;
 		}
 		return s;
 	}
 
-	private int heartPriceFunctionGold(int heartNumber)
+	private int heartPriceFunctionGold(long heartNumber)
 	{
-		return (int) (1000 * Math.pow(heartNumber, 2));
+		return Math.min(FastClicker.goldHeartPriceFunction(heartNumber), FastClicker.maxGoldHeartPrice);
 	}
+
+	
 
 	@Override
 	public String getErrorText()

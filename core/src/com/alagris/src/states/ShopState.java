@@ -14,13 +14,12 @@ public class ShopState implements State
 {
 	private byte currentPageIndex = 0;
 	private FastClicker mainClass;
-	private ShopStatePanelInterface heartsPanel, goldPanel, freeGoldPanel,gamemodePanel;
+	private ShopStatePanelInterface heartsPanel, goldPanel, freeGoldPanel, gamemodePanel;
 	private ButtonSquare buttonBuy, buttonExit, buttonNext, buttonPrevious;
 	private AnimatedText animatedText;
 	private GlyphLayout playerGoldTextGlyph, playerGoldValueGlyph;
 	private ShopStatePanelInterface[] panels;
 	private int goldTextX, goldTextY, goldNumberY, goldNumberX;
-
 
 	@Override
 	public void createState(FastClicker mainClass)
@@ -38,7 +37,7 @@ public class ShopState implements State
 		goldPanel = new ShopStateGold(this);
 		freeGoldPanel = new ShopStateGoldFree(this);
 		gamemodePanel = new ShopStateGamemode(this);
-		panels = new ShopStatePanelInterface[] { heartsPanel, goldPanel, freeGoldPanel,gamemodePanel };
+		panels = new ShopStatePanelInterface[] { heartsPanel, goldPanel, freeGoldPanel, gamemodePanel };
 		animatedText.setText("not enough gold", Color.RED);
 		playerGoldValueGlyph = new GlyphLayout();
 		playerGoldTextGlyph = new GlyphLayout(StaticBitmapFont.getBitmapFont(), "Your gold:");

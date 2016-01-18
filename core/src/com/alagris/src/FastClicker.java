@@ -1,7 +1,5 @@
 package com.alagris.src;
 
-import java.io.IOException;
-
 import com.alagris.src.specific.AdMobEventListenerInteger;
 import com.alagris.src.specific.AdMobInterface;
 import com.alagris.src.specific.SwarmInterface;
@@ -9,14 +7,21 @@ import com.alagris.src.states.GameStates;
 import com.alagris.src.states.GameStates.StateOfGame;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 
 public final class FastClicker extends ApplicationAdapter
 {
+
+	/*
+	 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! BEFORE DISTRIBUTING
+	 * THE GAME!!!!!! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	 * 
+	 * 
+	 * 
+	 * 
+	 */
 
 	//////////////////////////////
 	///////// VARIABLES //////////
@@ -27,10 +32,8 @@ public final class FastClicker extends ApplicationAdapter
 	private GameStates states;
 	private static int touchX, touchY;
 	private GlyphLayout errorGlyphs = null;
-	private static int money, moneyToReclaim, numberOfLostGamesToShowAdv;
-	private static int lifes, goldLifes, easyModeStartingLevel, mediumModeStartingLevel, hardModeStartingLevel;
-	private static int best;
-	private static FileHandle settingsFile;
+	private static final Data data = new Data();
+
 	private static boolean shouldSave = false;
 	private SwarmInterface swarmInterface;
 	private final AdMobInterface adMobInterface;
@@ -38,9 +41,27 @@ public final class FastClicker extends ApplicationAdapter
 	private boolean adFailedToLoad = false;
 	public static final Color goldHeartColor = Color.YELLOW;
 	public static final byte MODE_SIMPLE = 0, MODE_MIXED = 1, MODE_FULL = 2;
+	/** income function is Math.pow(score,levelToPower) */
 	public static final double levelToPower_easy = 1.2, levelToPower_medium = 1.3, levelToPower_hard = 1.4;
 	public static double levelToPower = levelToPower_easy;
-	private static byte gamemode = MODE_MIXED;
+
+	public static final int maxRedHeartPrice = moneyFromScoreFunction(150);
+	public static final int maxGoldHeartPrice = moneyFromScoreFunction(200);
+
+	public static int moneyFromScoreFunction(int score)
+	{
+		return (int) Math.pow(score, FastClicker.levelToPower);
+	}
+
+	public static int goldHeartPriceFunction(long heartNumber)
+	{
+		return (int) (1000 * Math.pow(heartNumber, 2));
+	}
+
+	public static int redHeartPriceFunction(long heartNumber)
+	{
+		return (int) (100 * Math.pow(heartNumber - 1, 3));
+	}
 	//////////////////////////////
 	//////// GAME LOGIC //////////
 	//////////////////////////////
@@ -81,90 +102,6 @@ public final class FastClicker extends ApplicationAdapter
 		}
 	};
 
-	private static void saveData()
-	{
-		saveData(best, money, lifes, goldLifes, moneyToReclaim, numberOfLostGamesToShowAdv, gamemode,
-				easyModeStartingLevel, mediumModeStartingLevel, hardModeStartingLevel);
-	}
-
-	private static void saveData(Object... data)
-	{
-		if (shouldSave)
-		{
-			String s = "";
-			for (Object object : data)
-			{
-				s += object + "m";
-			}
-			settingsFile.writeString(s, false);
-			shouldSave = false;
-		}
-	}
-
-	private static void readSavedData()
-	{
-		if (settingsFile == null)
-		{
-			settingsFile = Gdx.files.local("settings");
-		}
-		if (!settingsFile.exists())
-		{
-			try
-			{
-				settingsFile.file().createNewFile();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			setDefaultSettings();
-		}
-		else
-		{
-			String[] strings = settingsFile.readString().split("m");
-			if (strings.length == 10)
-			{
-				try
-				{
-					best = Integer.parseInt(strings[0]);
-					money = Integer.parseInt(strings[1]);
-					lifes = Integer.parseInt(strings[2]);
-					goldLifes = Integer.parseInt(strings[3]);
-					moneyToReclaim = Integer.parseInt(strings[4]);
-					numberOfLostGamesToShowAdv = Integer.parseInt(strings[5]);
-					setGamemode(Byte.parseByte(strings[6]));
-					easyModeStartingLevel = Integer.parseInt(strings[7]);
-					mediumModeStartingLevel = Integer.parseInt(strings[8]);
-					hardModeStartingLevel = Integer.parseInt(strings[9]);
-				}
-				catch (NumberFormatException e)
-				{
-					e.printStackTrace();
-					setDefaultSettings();
-				}
-			}
-			else
-			{
-				setDefaultSettings();
-			}
-		}
-	}
-
-	private static void setDefaultSettings()
-	{
-		shouldSave = true;
-		best = 0;
-		money = 0;
-		lifes = 1;
-		goldLifes = 0;
-		moneyToReclaim = 0;
-		numberOfLostGamesToShowAdv = 3;
-		setGamemode(MODE_SIMPLE);
-		easyModeStartingLevel = 0;
-		mediumModeStartingLevel = 0;
-		hardModeStartingLevel = 0;
-	}
-
 	public void setCurrentSate(StateOfGame state)
 	{
 		states.setCurrentState(state);
@@ -173,7 +110,10 @@ public final class FastClicker extends ApplicationAdapter
 	@Override
 	public void create()
 	{
-		readSavedData();
+
+		data.readSavedData(swarmInterface);
+		setGamemode(getGamemode());// it sets other variables that depend on game mode
+		shouldSave = false;
 		Gdx.gl.glClearColor(Color.LIGHT_GRAY.r, Color.LIGHT_GRAY.g, Color.LIGHT_GRAY.b, 1);
 		WIDTH = Gdx.graphics.getWidth();
 		HEIGHT = Gdx.graphics.getHeight();
@@ -213,7 +153,11 @@ public final class FastClicker extends ApplicationAdapter
 	@Override
 	public void pause()
 	{
-		saveData();
+		if (shouldSave)
+		{
+			shouldSave = false;
+			data.uploadDataToCloud(swarmInterface);
+		}
 		states.pause();
 		super.pause();
 	}
@@ -228,8 +172,12 @@ public final class FastClicker extends ApplicationAdapter
 	@Override
 	public void dispose()
 	{
-		saveData();
-
+		if (shouldSave)
+		{
+			shouldSave = false;
+			data.uploadDataToCloud(swarmInterface);
+		}
+		data.uploadDataToCloud(getSwarmInterface());
 		states.dispose();
 		StaticBitmapFont.dispose();
 		RectangleRenderer.dispose();
@@ -246,51 +194,37 @@ public final class FastClicker extends ApplicationAdapter
 		return touchY;
 	}
 
-	public void setError(String string)
+	public static long getMoney()
 	{
-		if (string == null)
-		{
-			errorGlyphs = null;
-		}
-		else
-		{
-			BitmapFont f = StaticBitmapFont.buildNewBitmapFontObject();
-			f.setColor(Color.RED);
-			errorGlyphs = new GlyphLayout(f, string);
-		}
+		return data.money[0];
 	}
 
-	public static int getMoney()
-	{
-		return money;
-	}
-
-	public static void setMoney(int money)
+	public static void setMoney(long money)
 	{
 		shouldSave = true;
-		FastClicker.money = money;
+		data.money[0] = money;
 	}
 
-	public static int getLifes()
+	public static long getLifes()
 	{
-		return lifes;
+		return data.lifes[0];
 	}
 
-	public static void setLifes(int lifes)
-	{
-		shouldSave = true;
-		FastClicker.lifes = lifes;
-	}
-
-	public static int getBest()
-	{
-		return best;
-	}
-
-	public static void setBest(int best)
+	public static void setLifes(long lifes)
 	{
 		shouldSave = true;
-		FastClicker.best = best;
+		data.lifes[0] = lifes;
+	}
+
+	public static long getBest()
+	{
+		return data.best[0];
+	}
+
+	public static void setBest(long best)
+	{
+		shouldSave = true;
+		data.best[0] = best;
 	}
 
 	public SwarmInterface getSwarmInterface()
@@ -304,41 +238,41 @@ public final class FastClicker extends ApplicationAdapter
 		this.swarmInterface = swarmInterface;
 	}
 
-	public static int getGoldLifes()
+	public static long getGoldLifes()
 	{
-		return goldLifes;
+		return data.goldLifes[0];
 	}
 
-	public static void setGoldLifes(int goldLifes)
+	public static void setGoldLifes(long goldLifes)
 	{
 		shouldSave = true;
-		FastClicker.goldLifes = goldLifes;
+		data.goldLifes[0] = goldLifes;
 	}
 
-	public static int getMoneyToReclaim()
+	public static long getMoneyToReclaim()
 	{
-		return moneyToReclaim;
+		return data.moneyToReclaim[0];
 	}
 
-	public static void setMoneyToReclaim(int moneyToReclaim)
+	public static void setMoneyToReclaim(long moneyToReclaim)
 	{
 		shouldSave = true;
-		FastClicker.moneyToReclaim = moneyToReclaim;
+		data.moneyToReclaim[0] = moneyToReclaim;
 	}
 
-	public static int getNumberOfLostGamesToShowAdv()
+	public static long getNumberOfLostGamesToShowAdv()
 	{
-		return numberOfLostGamesToShowAdv;
+		return data.numberOfLostGamesToShowAdv[0];
 	}
 
-	public static void setNumberOfLostGamesToShowAdv(int numberOfLostGamesToShowAdv)
+	public static void setNumberOfLostGamesToShowAdv(long numberOfLostGamesToShowAdv)
 	{
-		FastClicker.numberOfLostGamesToShowAdv = numberOfLostGamesToShowAdv;
+		data.numberOfLostGamesToShowAdv[0] = numberOfLostGamesToShowAdv;
 	}
 
 	public static void addMoneyToReclaim(int score)
 	{
-		moneyToReclaim += 50;
+		data.moneyToReclaim[0] += 50;
 	}
 
 	public AdMobInterface getAdMobInterface()
@@ -346,46 +280,17 @@ public final class FastClicker extends ApplicationAdapter
 		return adMobInterface;
 	}
 
-	public static int getEasyModeStartingLevel()
-	{
-		return easyModeStartingLevel;
-	}
-
-	public static void setEasyModeStartingLevel(int easyModeStartingLevel)
-	{
-		FastClicker.easyModeStartingLevel = easyModeStartingLevel;
-	}
-
-	public static int getMediumModeStartingLevel()
-	{
-		return mediumModeStartingLevel;
-	}
-
-	public static void setMediumModeStartingLevel(int mediumModeStartingLevel)
-	{
-		FastClicker.mediumModeStartingLevel = mediumModeStartingLevel;
-	}
-
-	public static int getHardModeStartingLevel()
-	{
-		return hardModeStartingLevel;
-	}
-
-	public static void setHardModeStartingLevel(int hardModeStartingLevel)
-	{
-		FastClicker.hardModeStartingLevel = hardModeStartingLevel;
-	}
-
 	public static byte getGamemode()
 	{
-		return gamemode;
+		return (byte) data.gamemode[0];
 	}
 
 	public static void setGamemode(byte gamemode)
 	{
-		FastClicker.gamemode = gamemode;
+		shouldSave = true;
+		data.gamemode[0] = gamemode;
 
-		switch (FastClicker.gamemode) {
+		switch (getGamemode()) {
 			case FastClicker.MODE_SIMPLE:
 				levelToPower = levelToPower_easy;
 				break;

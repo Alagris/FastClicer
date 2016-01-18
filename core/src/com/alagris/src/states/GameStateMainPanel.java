@@ -31,7 +31,7 @@ public class GameStateMainPanel implements Disposable, Drawable
 	private HeartBar heartGoldBar;
 	private CellSelector selector;
 	private int heightOfTimeBar;
-	private int lifesLeft, goldLifesLeft;
+	private long lifesLeft, goldLifesLeft;
 	private int level;
 	private Timer timerForBlinks;
 	private TimerWithListener timerAfterMistake, timerAfterCorrect;
@@ -257,29 +257,41 @@ public class GameStateMainPanel implements Disposable, Drawable
 		changeSets(0.5);
 		switch (level) {
 			case 2:
-				parent.getMainClass().getSwarmInterface().unlock(23533);
+				parent.getMainClass().getSwarmInterface().unlock("CgkIvtaPzJQMEAIQAg");
 				break;
 			case 10:
-				parent.getMainClass().getSwarmInterface().unlock(23535);
+				parent.getMainClass().getSwarmInterface().unlock("CgkIvtaPzJQMEAIQAw");
 				break;
 			case 100:
-				parent.getMainClass().getSwarmInterface().unlock(23537);
+				parent.getMainClass().getSwarmInterface().unlock("CgkIvtaPzJQMEAIQBA");
 				break;
 			case 150:
-				parent.getMainClass().getSwarmInterface().unlock(23539);
+				parent.getMainClass().getSwarmInterface().unlock("CgkIvtaPzJQMEAIQBQ");
 				break;
 			case 180:
-				parent.getMainClass().getSwarmInterface().unlock(23541);
+				parent.getMainClass().getSwarmInterface().unlock("CgkIvtaPzJQMEAIQCA");
 				break;
 			case 200:
-				parent.getMainClass().getSwarmInterface().unlock(23547);
+				parent.getMainClass().getSwarmInterface().unlock("CgkIvtaPzJQMEAIQBg");
 				break;
 			case 220:
-				parent.getMainClass().getSwarmInterface().unlock(23549);
+				parent.getMainClass().getSwarmInterface().unlock("CgkIvtaPzJQMEAIQBw");
 				break;
 			case 250:
-				parent.getMainClass().getSwarmInterface().unlock(23543);
+				parent.getMainClass().getSwarmInterface().unlock("CgkIvtaPzJQMEAIQCQ");
 				break;
+			case 300:
+				parent.getMainClass().getSwarmInterface().unlock("CgkIvtaPzJQMEAIQCg");
+				break;
+			case 350:
+				parent.getMainClass().getSwarmInterface().unlock("CgkIvtaPzJQMEAIQCw");
+				break;
+			case 351:
+				parent.getMainClass().getSwarmInterface().unlock("CgkIvtaPzJQMEAIQDA");
+				break;
+				
+				
+
 		}
 	}
 
