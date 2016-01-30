@@ -16,17 +16,25 @@ import com.google.android.gms.drive.Drive;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.plus.Plus;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 
 public class AndroidLauncher extends AndroidApplication
 {
-
-	AndroidLauncher mainActivity;
-	InterstitialAd interstitialAd;
-	AdMobInterface adMobGDX = new AdMobInterface()
+	private AndroidSwarmImplementation swarmInterface;
+	private AndroidLauncher mainActivity;
+	private InterstitialAd interstitialAd;
+	private FastClicker fastClicker;
+	private AdMobInterface adMobGDX = new AdMobInterface()
 	{
 		private boolean b;
 
+		@Override
 		public boolean isLoaded()
 		{
 			mainActivity.runOnUiThread(new Runnable()
@@ -86,12 +94,14 @@ public class AndroidLauncher extends AndroidApplication
 		// ============AD VIEW==========^^^
 
 		// ============SWARM==========VVV
-		AndroidSwarmImplementation swarmInterface = new AndroidSwarmImplementation(this);
+		swarmInterface = new AndroidSwarmImplementation(this);
+
 		// ============SWARM==========^^^
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 
 		// ============GAME VIEW==========VVV
-		initialize(new FastClicker(swarmInterface, adMobGDX), config);
+		fastClicker = new FastClicker(swarmInterface, adMobGDX);
+		initialize(fastClicker, config);
 		// ============GAME VIEW==========^^^
 
 		// ============GOOGLE==========VVV
@@ -107,9 +117,31 @@ public class AndroidLauncher extends AndroidApplication
 		// Swarm.setAllowGuests(true);
 		// Swarm.setActive(this);
 		// // ============SWARM==========^^^
+
+		// =============INTERNET LISTENER
+		BroadcastReceiver broadcastReceiver = new BroadcastReceiver()
+		{
+			@Override
+			public void onReceive(Context context, Intent intent)
+			{
+				if (intent == null || intent.getExtras() == null) return;
+
+				ConnectivityManager manager = (ConnectivityManager) context
+						.getSystemService(Context.CONNECTIVITY_SERVICE);
+				NetworkInfo ni = manager.getActiveNetworkInfo();
+
+				if (ni != null && ni.getState() == NetworkInfo.State.CONNECTED)
+				{
+					if (FastClicker.IS_DEBUG_MODE) swarmInterface.showError("Connection available", false);
+					googleApiClient.connect();
+				}
+			}
+		};
+		registerReceiver(broadcastReceiver, new IntentFilter(android.net.ConnectivityManager.CONNECTIVITY_ACTION));
 	}
 
 	// Add everything below here too
+	@Override
 	public void onResume()
 	{
 		super.onResume();
@@ -130,6 +162,7 @@ public class AndroidLauncher extends AndroidApplication
 		googleApiClient.connect();
 	}
 
+	@Override
 	public void onPause()
 	{
 		super.onPause();
@@ -138,13 +171,19 @@ public class AndroidLauncher extends AndroidApplication
 		// // ============SWARM==========^^^
 	}
 
+	@Override
+	protected void onDestroy()
+	{
+		googleApiClient.disconnect();
+		super.onDestroy();
+	}
+
 	private OnConnectionFailedListener connectionFailedListener = new OnConnectionFailedListener()
 	{
-
 		@Override
 		public void onConnectionFailed(ConnectionResult result)
 		{
-
+			if (FastClicker.IS_DEBUG_MODE) swarmInterface.showError("Connection failed", false);
 		}
 	};
 
@@ -154,13 +193,13 @@ public class AndroidLauncher extends AndroidApplication
 		@Override
 		public void onConnectionSuspended(int cause)
 		{
-
+			if (FastClicker.IS_DEBUG_MODE) swarmInterface.showError("Connection suspended", false);
 		}
 
 		@Override
 		public void onConnected(Bundle connectionHint)
 		{
-
+			if (FastClicker.IS_DEBUG_MODE) swarmInterface.showError("Connection successful", false);
 		}
 	};
 
@@ -176,6 +215,7 @@ public class AndroidLauncher extends AndroidApplication
 		@Override
 		public void onAdFailedToLoad(int errorCode)
 		{
+			if (FastClicker.IS_DEBUG_MODE) swarmInterface.showError("Ad failed to load", false);
 			adMobGDX.getAdMobListener().onAdFailedToLoad(errorCode);
 			super.onAdFailedToLoad(errorCode);
 		}
@@ -190,6 +230,7 @@ public class AndroidLauncher extends AndroidApplication
 		@Override
 		public void onAdLoaded()
 		{
+			if (FastClicker.IS_DEBUG_MODE) swarmInterface.showError("Ad loaded", false);
 			adMobGDX.getAdMobListener().onAdLoaded();
 			super.onAdLoaded();
 		}
