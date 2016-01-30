@@ -23,9 +23,9 @@ public class GameState implements State
 	private int gamesLostSoFar = 0;
 	private boolean isGoingToBePaused = false;
 
-	public GameState( int lifes)
+	public GameState(int lifes)
 	{
-		mainPanel = new GameStateMainPanel( this);
+		mainPanel = new GameStateMainPanel(this);
 		int margin = (int) ((FastClicker.WIDTH > FastClicker.HEIGHT ? FastClicker.HEIGHT : FastClicker.WIDTH) * 0.15f);
 		gameOverPanel = new GameStateGaveOverPanel(margin, margin * 2, FastClicker.WIDTH - margin * 2,
 				FastClicker.HEIGHT - margin * 3, this);
@@ -158,8 +158,7 @@ public class GameState implements State
 			case GAME_OVER:
 				gameOverPanel.setScore(mainPanel.getLevel());
 				gamesLostSoFar++;
-				if (areAdsEnabled() && isItTimeForAdv() && mainClass.getSwarmInterface().isOnline()
-						&& mainClass.getAdMobInterface().isLoaded())
+				if (areAdsEnabled() && isItTimeForAdv() && mainClass.getAdMobInterface().isLoaded())
 				{
 					mainClass.getAdMobInterface().showAd();
 					setPlayingStateWithoutPrompt(PlayingStates.ADVERTISEMENT);

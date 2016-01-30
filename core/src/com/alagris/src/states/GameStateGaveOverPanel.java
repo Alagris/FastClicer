@@ -80,7 +80,8 @@ public class GameStateGaveOverPanel implements Disposable, Drawable
 		newRecordSprite = new Sprite(newRecordTexture);
 		newRecordSprite.setBounds(x + w / 3 * 2, y + marginY * 3.5f, w / 2, w / 2);
 		// income animation
-		incomeAnimation = new IncomeAnimation(font, x + w / 2, y + marginY * 4f,-1, StaticBitmapFont.getSpriteBatch(), 2);
+		incomeAnimation = new IncomeAnimation(font, x + w / 2, y + marginY * 4f, -1, StaticBitmapFont.getSpriteBatch(),
+				2);
 	}
 
 	private void loadRecordTexture()
@@ -105,7 +106,7 @@ public class GameStateGaveOverPanel implements Disposable, Drawable
 		{
 			showNewRecord = true;
 			FastClicker.setBest(this.score);
-			parent.getMainClass().getSwarmInterface().submitScore(19899, FastClicker.getBest());
+			parent.getMainClass().getSwarmInterface().submitScore("CgkIvtaPzJQMEAIQDQ", FastClicker.getBest());
 			if (FastClicker.getBest() > textureLoadedFromLevel.maxScore)
 			{
 				newRecordTexture.dispose();
@@ -161,6 +162,7 @@ public class GameStateGaveOverPanel implements Disposable, Drawable
 
 	private void onExitPressed()
 	{
+		parent.getMainClass().getSwarmInterface().shouldHoldErrorMessages(false);
 		parent.getMainClass().setCurrentSate(StateOfGame.MENU);
 		showNewRecord = false;
 	}
@@ -236,9 +238,12 @@ public class GameStateGaveOverPanel implements Disposable, Drawable
 	private enum RecordLevel
 	{
 		/** Between 10-99 */
-		LEVEL_0(10, 99, null), /** Between 100-149 */
-		LEVEL_1(100, 149, "star.png"), /** Between 150-199 */
-		LEVEL_2(150, 199, "newRecordRainbow.png"), /** more of equal 200 */
+		LEVEL_0(10, 99, null),
+		/** Between 100-149 */
+		LEVEL_1(100, 149, "star.png"),
+		/** Between 150-199 */
+		LEVEL_2(150, 199, "newRecordRainbow.png"),
+		/** more of equal 200 */
 		LEVEL_3(200, Integer.MAX_VALUE, "newRecordRainbow.png");
 
 		final int minScore;

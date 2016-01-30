@@ -33,7 +33,7 @@ public final class FastClicker extends ApplicationAdapter
 	private static int touchX, touchY;
 	private GlyphLayout errorGlyphs = null;
 	private static final Data data = new Data();
-
+	public static final boolean IS_DEBUG_MODE = true;
 	private static boolean shouldSave = false;
 	private SwarmInterface swarmInterface;
 	private final AdMobInterface adMobInterface;
@@ -44,7 +44,6 @@ public final class FastClicker extends ApplicationAdapter
 	/** income function is Math.pow(score,levelToPower) */
 	public static final double levelToPower_easy = 1.2, levelToPower_medium = 1.3, levelToPower_hard = 1.4;
 	public static double levelToPower = levelToPower_easy;
-
 	public static final int maxRedHeartPrice = moneyFromScoreFunction(150);
 	public static final int maxGoldHeartPrice = moneyFromScoreFunction(200);
 
@@ -110,16 +109,22 @@ public final class FastClicker extends ApplicationAdapter
 	@Override
 	public void create()
 	{
-
-		data.readSavedData(swarmInterface);
-		setGamemode(getGamemode());// it sets other variables that depend on game mode
-		shouldSave = false;
+		readData();
 		Gdx.gl.glClearColor(Color.LIGHT_GRAY.r, Color.LIGHT_GRAY.g, Color.LIGHT_GRAY.b, 1);
 		WIDTH = Gdx.graphics.getWidth();
 		HEIGHT = Gdx.graphics.getHeight();
 		RectangleRenderer.initialize();
 		StaticBitmapFont.initialize(WIDTH, HEIGHT);
 		states = new GameStates(this, StateOfGame.MENU);
+	}
+
+	private void readData()
+	{
+		data.readDataLocally();
+
+		// this sets variables that depend on game mode
+		setGamemode(getGamemode());
+		shouldSave = false;
 	}
 
 	@Override
@@ -153,11 +158,7 @@ public final class FastClicker extends ApplicationAdapter
 	@Override
 	public void pause()
 	{
-		if (shouldSave)
-		{
-			shouldSave = false;
-			data.uploadDataToCloud(swarmInterface);
-		}
+		saveData();
 		states.pause();
 		super.pause();
 	}
@@ -172,16 +173,31 @@ public final class FastClicker extends ApplicationAdapter
 	@Override
 	public void dispose()
 	{
-		if (shouldSave)
-		{
-			shouldSave = false;
-			data.uploadDataToCloud(swarmInterface);
-		}
-		data.uploadDataToCloud(getSwarmInterface());
+		saveData();
 		states.dispose();
 		StaticBitmapFont.dispose();
 		RectangleRenderer.dispose();
 		super.dispose();
+	}
+
+	private void saveData()
+	{
+		if (shouldSave)
+		{
+			shouldSave = false;
+			data.writeDataLocally();
+		}
+	}
+
+	public void uploadDataToCloud()
+	{
+		data.uploadDataToCloud(getSwarmInterface());
+	}
+
+	public void setData(Data d)
+	{
+		for (int i = 0; i < data.array.length; i++)
+			data.array[i][0] = d.array[i][0];
 	}
 
 	public static int getTouchX()
@@ -267,11 +283,13 @@ public final class FastClicker extends ApplicationAdapter
 
 	public static void setNumberOfLostGamesToShowAdv(long numberOfLostGamesToShowAdv)
 	{
+		shouldSave = true;
 		data.numberOfLostGamesToShowAdv[0] = numberOfLostGamesToShowAdv;
 	}
 
 	public static void addMoneyToReclaim(int score)
 	{
+		shouldSave = true;
 		data.moneyToReclaim[0] += 50;
 	}
 

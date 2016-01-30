@@ -8,15 +8,9 @@ import com.badlogic.gdx.utils.Disposable;
 public class GameStates implements Disposable, Drawable
 {
 
-	/**
-	 * !!!Before publishing!!!
-	 */
-	/**
-	 * -make sure that file settings contains text: "-1"
-	 */
 	public enum StateOfGame
 	{
-		GAME(0), MENU(1), HOW_TO_PLAY(2), SHOP(3), MENU_SWARM(4);
+		GAME(0), MENU(1), HOW_TO_PLAY(2), SHOP(3), MENU_SWARM(4), MENU_CLOUD(5);
 		int index;
 
 		private StateOfGame(int index)
@@ -33,8 +27,9 @@ public class GameStates implements Disposable, Drawable
 	private State menu = new MenuState();
 	private State howToPlay = new HowToPlayState();
 	private State shop = new ShopState();
+	private State cloud = new CloudMenuState();
 
-	private State[] states = { game, menu, howToPlay, shop ,swarm};
+	private State[] states = { game, menu, howToPlay, shop, swarm, cloud };
 
 	public GameStates(FastClicker mainClass, StateOfGame stateAtTheBeginning)
 	{

@@ -16,6 +16,7 @@ public class MenuState implements State
 	{
 		if (buttonPlay.checkButton())
 		{
+			mainClass.getSwarmInterface().shouldHoldErrorMessages(true);
 			mainClass.setCurrentSate(StateOfGame.GAME);
 		}
 		if (buttonHowToPlay.checkButton())

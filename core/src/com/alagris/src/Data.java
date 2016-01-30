@@ -1,6 +1,10 @@
 package com.alagris.src;
 
+import java.io.IOException;
+
 import com.alagris.src.specific.SwarmInterface;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 
 public class Data
 {
@@ -9,17 +13,18 @@ public class Data
 	// primitive values
 	// (and Long is immutable so using it doesn't change anything since I still
 	// have to replace pointer to it every time I change it)
-	long[] money = { 0 };
-	long[] moneyToReclaim = { 0 };
-	long[] numberOfLostGamesToShowAdv = { 0 };
-	long[] lifes = { 0 }, goldLifes = { 0 };
-	long[] best = { 0 };
-	long[] gamemode = { FastClicker.MODE_MIXED };
-	long[] idOfUserThisDataBelongsTo = { 0 }, mediumModeStartingLevel = { 0 }, hardModeStartingLevel = { 0 }; // unused
-	long[][] array = { best, money, lifes, goldLifes, moneyToReclaim, numberOfLostGamesToShowAdv, gamemode,
+	public long[] money = { 0 };
+	public long[] moneyToReclaim = { 0 };
+	public long[] numberOfLostGamesToShowAdv = { 0 };
+	public long[] lifes = { 0 }, goldLifes = { 0 };
+	public long[] best = { 0 };
+	public long[] gamemode = { FastClicker.MODE_MIXED };
+	public long[] idOfUserThisDataBelongsTo = { 0 }, mediumModeStartingLevel = { 0 }, hardModeStartingLevel = { 0 }; // unused
+	public long[][] array = { best, money, lifes, goldLifes, moneyToReclaim, numberOfLostGamesToShowAdv, gamemode,
 			idOfUserThisDataBelongsTo, mediumModeStartingLevel, hardModeStartingLevel };
 	private static String swarmMainCloudKey = "d";
 	/** True if local data did exist and was impossible to parse */
+	private FileHandle settingsFile;
 
 	/**
 	 * The logic is that: <br>
@@ -41,30 +46,94 @@ public class Data
 		i.uploadDataToCloud(swarmMainCloudKey, encrypt(pack(array)));
 	}
 
-	public void readSavedData(SwarmInterface arg)
+	/** Returns true if successfully fetched data */
+	public boolean downloadDataFromCloud(SwarmInterface i)
 	{
-
-		byte[] result = arg.downloadDataFromCloud(swarmMainCloudKey);
-		if (result == null)
+		byte[] result = i.downloadDataFromCloud(swarmMainCloudKey);
+		if (result != null && parseBinaryData(result))
 		{
-			setDefaultSettings();
+			i.showError("Could not load remote data.", false);
+			return false;
 		}
-		else
-		{
-			long[] data = unpack(decrypt(result));
-			if (data.length == array.length)
-			{
-				for (int i = 0; i < data.length; i++)
-				{
-					array[i][0] = data[i];
-				}
-			}
-			else
-			{
-				setDefaultSettings();
-			}
-		}
+		return true;
+	}
 
+	public void readDataLocally()
+	{
+		byte[] result = readLocally();
+		if (result == null || !parseBinaryData(result)) setDefaultSettings();
+	}
+
+	public void writeDataLocally()
+	{
+		writeLocally(encrypt(pack(array)));
+	}
+
+	/** Returns false if there was problem with parsing */
+	private boolean parseBinaryData(byte[] d)
+	{
+		try
+		{
+			long[] data = unpack(decrypt(d));
+			if (data.length != array.length) return false;
+			for (int i = 0; i < data.length; i++)
+			{
+				array[i][0] = data[i];
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Returns true if file exists. False if doesn't exist (+automatically
+	 * creates it or throws exception)
+	 * 
+	 * @throws IOException
+	 */
+	private boolean prepareSettingsFile() throws IOException
+	{
+		if (settingsFile == null)
+		{
+			settingsFile = Gdx.files.local("settings");
+		}
+		if (!settingsFile.exists())
+		{
+			settingsFile.file().createNewFile();
+			return false;
+		}
+		return true;
+	}
+
+	private byte[] readLocally()
+	{
+		try
+		{
+			prepareSettingsFile();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+		return settingsFile.readBytes();
+	}
+
+	private void writeLocally(byte[] data)
+	{
+		try
+		{
+			prepareSettingsFile();
+			settingsFile.writeBytes(data, false);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	private static final int LONG_SIZE_IN_BYTES = 8;

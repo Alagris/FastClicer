@@ -1,15 +1,11 @@
 package com.alagris.src.desktop;
 
-import java.io.IOException;
-
 import com.alagris.src.specific.SwarmInterface;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 
 public class DesktopSwarmImplementation implements SwarmInterface
 {
 
-	private FileHandle settingsFile;
+	private Object monitor = new Object();
 
 	@Override
 	public void showLeaderboards()
@@ -18,7 +14,7 @@ public class DesktopSwarmImplementation implements SwarmInterface
 	}
 
 	@Override
-	public void submitScore(int MY_LEADERBOARD_ID, float lastScore)
+	public void submitScore(String MY_LEADERBOARD_ID, long lastScore)
 	{
 		System.out.println("submitScore " + MY_LEADERBOARD_ID);
 	}
@@ -36,7 +32,7 @@ public class DesktopSwarmImplementation implements SwarmInterface
 	}
 
 	@Override
-	public void showLeaderboard(int MY_LEADERBOARD)
+	public void showLeaderboard(String MY_LEADERBOARD)
 	{
 		System.out.println("showLeaderboard " + MY_LEADERBOARD);
 	}
@@ -68,40 +64,11 @@ public class DesktopSwarmImplementation implements SwarmInterface
 		System.out.println("showAchievements");
 	}
 
-	/**
-	 * Returns true if file exists. False if doesn't exist (+automatically
-	 * creates it or throws exception)
-	 * 
-	 * @throws IOException
-	 */
-	private boolean prepareSettingsFile() throws IOException
-	{
-		if (settingsFile == null)
-		{
-			settingsFile = Gdx.files.local("settings");
-		}
-		if (!settingsFile.exists())
-		{
-			settingsFile.file().createNewFile();
-			return false;
-		}
-		return true;
-	}
-
 	@Override
 	public byte[] downloadDataFromCloud(String key)
 	{
 		System.out.println("Cloud download for key=" + key);
-		try
-		{
-			prepareSettingsFile();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-			return null;
-		}
-		return settingsFile.readBytes();
+		return null;
 	}
 
 	@Override
@@ -115,20 +82,45 @@ public class DesktopSwarmImplementation implements SwarmInterface
 	public void uploadDataToCloud(String key, byte[] data)
 	{
 		System.out.println("Swarm cloud upload for key=" + key + " (value=" + new String(data) + ")");
-		try
-		{
-			prepareSettingsFile();
-			settingsFile.writeBytes(data, false);
-		}
-		catch (Exception e)
-		{
-		}
 	}
 
 	@Override
-	public void showError(String text, boolean showForLongTime)
+	public void showError(final String text, boolean showForLongTime)
 	{
-		System.err.println("ERROR! " + text);
+		Thread t = new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				synchronized (monitor)
+				{
+					while (supressErrors)
+						try
+						{
+							monitor.wait();
+						}
+						catch (InterruptedException e)
+						{
+							e.printStackTrace();
+						}
+				}
+				System.err.println("ERROR! " + text);
+			}
+		});
+		t.start();
+
+	}
+
+	private boolean supressErrors = false;
+
+	@Override
+	public void shouldHoldErrorMessages(boolean supressThem)
+	{
+		supressErrors = supressThem;
+		if (!supressThem) synchronized (monitor)
+		{
+			monitor.notifyAll();
+		}
 	}
 
 }

@@ -8,7 +8,7 @@ import com.alagris.src.states.GameStates.StateOfGame;
 public class SwarmMenuState implements State
 {
 
-	private ButtonSquare buttonLeaderboards, buttonAchievements, buttonDaschboard, buttonBack;
+	private ButtonSquare buttonLeaderboards, buttonAchievements, buttonCloud, buttonBack;
 	private FastClicker mainClass;
 
 	@Override
@@ -20,36 +20,15 @@ public class SwarmMenuState implements State
 		}
 		if (buttonAchievements.checkButton())
 		{
-			if (mainClass.getSwarmInterface().isLoggedIn())
-			{
-				mainClass.getSwarmInterface().showAchievements();
-			}
-			else
-			{
-				mainClass.getSwarmInterface().showLogin();
-			}
+			mainClass.getSwarmInterface().showAchievements();
 		}
 		if (buttonLeaderboards.checkButton())
 		{
-			if (mainClass.getSwarmInterface().isLoggedIn())
-			{
-				mainClass.getSwarmInterface().showLeaderboard(19899);
-			}
-			else
-			{
-				mainClass.getSwarmInterface().showLogin();
-			}
+			mainClass.getSwarmInterface().showLeaderboard("CgkIvtaPzJQMEAIQDQ");
 		}
-		if (buttonDaschboard.checkButton())
+		if (buttonCloud.checkButton())
 		{
-			if (mainClass.getSwarmInterface().isLoggedIn())
-			{
-				mainClass.getSwarmInterface().showDashboard();
-			}
-			else
-			{
-				mainClass.getSwarmInterface().showLogin();
-			}
+			mainClass.setCurrentSate(StateOfGame.MENU_CLOUD);
 		}
 	}
 
@@ -63,7 +42,7 @@ public class SwarmMenuState implements State
 	public void dispose()
 	{
 		buttonBack.dispose();
-		buttonDaschboard.dispose();
+		buttonCloud.dispose();
 		buttonAchievements.dispose();
 		buttonLeaderboards.dispose();
 	}
@@ -80,8 +59,8 @@ public class SwarmMenuState implements State
 				RectangleRenderer.getWHITE_PIXEL(), "Achievements");
 		buttonLeaderboards = new ButtonSquare(buttonX, buttonHeight * 3 + buttonHeightHalf, buttonWidth, buttonHeight,
 				RectangleRenderer.getWHITE_PIXEL(), "Records");
-		buttonDaschboard = new ButtonSquare(buttonX, buttonHeight * 2, buttonWidth, buttonHeight,
-				RectangleRenderer.getWHITE_PIXEL(), "Dashboard");
+		buttonCloud = new ButtonSquare(buttonX, buttonHeight * 2, buttonWidth, buttonHeight,
+				RectangleRenderer.getWHITE_PIXEL(), "Cloud saves");
 		buttonBack = new ButtonSquare(buttonX, buttonHeightHalf, buttonWidth, buttonHeight,
 				RectangleRenderer.getWHITE_PIXEL(), "Back");
 	}
